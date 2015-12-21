@@ -5,6 +5,7 @@
 % ensures regex library is installed
 % :- pack_install(regex, [silent(true), interactive(false)]).
 :- load_files(library(regex)).
+:- use_module(library(semweb/rdf_db)).
 
 day1_char_to_dir(`(`, 1).
 day1_char_to_dir(`)`, -1).
@@ -94,3 +95,20 @@ day3_1_get_position_and_turn_by_current_turn([_, RobotPos], robot, RobotPos, san
 
 day3_1_get_new_positions([_, RobotPos], santa, NextPos, [NextPos, RobotPos]).
 day3_1_get_new_positions([SantaPos, _], robot, NextPos, [SantaPos, NextPos]).
+
+day4_0(Input, Result) :-
+  day4_0_util(Input, 0, '00000', 5, Result).
+
+day4_1(Input, Result) :-
+  day4_0_util(Input, 0, '000000', 6, Result).
+
+day4_0_util(Input, Acc, Padding, PaddingLength, Acc) :-
+  number_string(Acc, AccString), 
+  string_concat(Input, AccString, Concat),
+  % FIXME: rdf_atom_md5 is deprecated
+  rdf_atom_md5(Concat, 1, Md5),
+  sub_string(Md5, 0, PaddingLength, _, Padding).
+
+day4_0_util(Input, Acc, Padding, PaddingLength, Result) :-
+  NewAcc is Acc + 1,
+  day4_0_util(Input, NewAcc, Padding, PaddingLength, Result).

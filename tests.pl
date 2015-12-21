@@ -39,10 +39,8 @@ test(test_day3_1) :-
   day3_1("^>v<", 3),
   day3_1("^v^v^v^v^v", 11).
 
-test('presents per house: initial and east') :- 
-  day3_0_count_present_per_house(`>`, pos(0, 0), [], Houses),
-  member(house(0, 0, 1), Houses),
-  member(house(1, 0, 1), Houses),
-  length(Houses, 2).
+test('day four') :-
+  day4_0("abcdef", 609043),
+  day4_0("pqrstuv", 1048970).
 
 :- end_tests(adventofcode_tests).

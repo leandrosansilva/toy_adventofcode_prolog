@@ -112,3 +112,11 @@ day4_0_util(Input, Acc, Padding, PaddingLength, Acc) :-
 day4_0_util(Input, Acc, Padding, PaddingLength, Result) :-
   NewAcc is Acc + 1,
   day4_0_util(Input, NewAcc, Padding, PaddingLength, Result).
+
+% Sorry, Regex support on swi-prolog is very primitive, so the regex are dirty... :-(
+day5_0(Input) :-
+  Input =~ '(ab|cd|pq|xy)', !, fail.
+
+day5_0(Input) :-
+  Input =~ '(aa|bb|cc|dd|ee|ff|gg|hh|ii|jj|kk|ll|mm|nn|oo|pp|qq|rr|ss|tt|uu|vv|ww|xx|yy|zz)',
+  Input =~ '[^aeiou]*([aeiou])[^aeiou]*([aeiou])[^aeiou]*([aeiou])'.

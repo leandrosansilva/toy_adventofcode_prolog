@@ -41,6 +41,14 @@ test(test_day3_1) :-
 
 test('day four') :-
   day4_0("abcdef", 609043),
-  day4_0("pqrstuv", 1048970).
+  day4_0("pqrstuv", 1048970),
+  day4_1("ckczppom", 3938038).
+
+test('day five') :-
+  day5_0("ugknbfddgicrmopn"),
+  day5_0("aaa"),
+  not(day5_0("jchzalrnumimnmhp")),
+  not(day5_0("haegwjzuvuyypxyu")),
+  not(day5_0("dvszwmarrgswjxmb")).
 
 :- end_tests(adventofcode_tests).

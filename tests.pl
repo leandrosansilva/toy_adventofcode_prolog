@@ -51,4 +51,9 @@ test('day five') :-
   not(day5_0("haegwjzuvuyypxyu")),
   not(day5_0("dvszwmarrgswjxmb")).
 
+test('parse day 6 instruction') :-
+  day6_0_parse_instruction("turn on 0,0 through 999,999", 
+    instruction('turn on', pos(0, 0), pos(999, 999))
+  ).
+
 :- end_tests(adventofcode_tests).

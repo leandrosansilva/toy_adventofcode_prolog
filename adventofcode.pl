@@ -120,3 +120,11 @@ day5_0(Input) :-
 day5_0(Input) :-
   Input =~ '(aa|bb|cc|dd|ee|ff|gg|hh|ii|jj|kk|ll|mm|nn|oo|pp|qq|rr|ss|tt|uu|vv|ww|xx|yy|zz)',
   Input =~ '[^aeiou]*([aeiou])[^aeiou]*([aeiou])[^aeiou]*([aeiou])'.
+
+day6_0_parse_instruction(Input, instruction(Comm, pos(BX, BY), pos(EX, EY))) :-
+  regex('^(.*) (\\d+),(\\d+) through (\\d+),(\\d+)$', [], Input, [CommCodes, SBX, SBY, SEX, SEY]),
+  atom_codes(Comm, CommCodes),
+  number_codes(BX, SBX), 
+  number_codes(BY, SBY), 
+  number_codes(EX, SEX), 
+  number_codes(EY, SEY).

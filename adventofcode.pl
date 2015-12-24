@@ -132,17 +132,18 @@ day6_0_parse_instruction(Input, instruction(Comm, pos(BX, BY), pos(EX, EY))) :-
 day6_get_rect_positions(Rect, Positions) :-
   day6_rect_properties(Rect, Prop),
   day6_get_rect_positions_util(Prop, 0, PositionsList),
-  list_to_set(PositionsList, Positions).
+  list_to_ord_set(PositionsList, Positions).
 
 day6_rect_properties(rect(pos(X, Y), pos(EX, EY)), prop(X, Y, W, Length)) :-
   W is EX - X + 1,
   H is EY - Y + 1,
   Length is H * W.
 
-day6_get_rect_positions_util(prop(_, _, _, Length), Length, []).
+day6_get_rect_positions_util(Prop, Length, []) :-
+  prop(_, _, _, Length) = Prop, !.
 
 day6_get_rect_positions_util(Prop, Count, [Pos|T]) :-
-  prop(BX, BY, W, _) = Prop,
+  prop(BX, BY, W, _) = Prop, !,
   X is BX + (Count mod W),
   Y is BY + (Count div W),
   pos(X, Y) = Pos,
@@ -151,15 +152,15 @@ day6_get_rect_positions_util(Prop, Count, [Pos|T]) :-
 
 day6_turn_on_lights(CurrentLights, Rect, NewLights) :-
   day6_get_rect_positions(Rect, LightsInTurn),
-  union(CurrentLights, LightsInTurn, NewLights).
+  ord_union(CurrentLights, LightsInTurn, NewLights).
 
 day6_turn_off_lights(CurrentLights, Rect, NewLights) :-
   day6_get_rect_positions(Rect, LightsOff),
-  subtract(CurrentLights, LightsOff, NewLights).
+  ord_subtract(CurrentLights, LightsOff, NewLights).
 
 day6_toggle_lights(CurrentLights, Rect, NewLights) :-
   day6_get_rect_positions(Rect, LightsToToggle),
-  symetric_difference(CurrentLights, LightsToToggle, NewLights).
+  ord_symdiff(CurrentLights, LightsToToggle, NewLights).
 
 day6_0_execute_instruction('turn on', CurrentLights, Rect, NewLights) :-
   day6_turn_on_lights(CurrentLights, Rect, NewLights).

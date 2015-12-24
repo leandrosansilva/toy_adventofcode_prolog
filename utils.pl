@@ -42,3 +42,8 @@ minlist([], Current, Current).
 minlist([H|T], Current, Result) :-
   min(H, Current, M),
   minlist(T, M, Result).
+
+symetric_difference(A, B, C) :-
+  intersection(A, B, I),
+  union(A, B, U),
+  subtract(U, I, C).

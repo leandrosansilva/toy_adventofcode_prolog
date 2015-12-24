@@ -60,11 +60,11 @@ test('parse day 6 instruction') :-
     instruction('toggle', pos(0, 0), pos(999, 0))).
 
 test('get rect for 1 light on day 6') :-
-  day6_get_rect_positions(rect(pos(0, 0), pos(0, 0)), Rect),
+  day6_get_rect_positions_sorted(rect(pos(0, 0), pos(0, 0)), Rect),
   member(pos(0, 0), Rect).
 
 test('turn on 2x3 rect light on day 6') :-
-  day6_get_rect_positions(rect(pos(1, 2), pos(2, 4)), Rect),
+  day6_get_rect_positions_sorted(rect(pos(1, 2), pos(2, 4)), Rect),
   member(pos(1, 2), Rect),!,
   member(pos(1, 3), Rect),!,
   member(pos(1, 4), Rect),!,
@@ -108,5 +108,26 @@ test('toggles vertical 3x1 line by a horizontal 1x3 producing a "crux"') :-
   member(pos(3, 3), SecondTurn), !,
   member(pos(5, 3), SecondTurn), !,
   member(pos(4, 4), SecondTurn), !.
+
+test('All empty, no brightness') :-
+  day6_1_count_total_brightness([], 0).
+
+test('turn on initial 2x1 rect on day 6.2') :-
+  day6_1_execute_instruction('turn on', [], rect(pos(3, 2), pos(4,2)), NewLights),
+  day6_1_count_total_brightness(NewLights, 2).
+
+test('turn on initial 2x1 rect on day 6.2 twice') :-
+  day6_1_execute_instruction('turn on', [], rect(pos(3, 2), pos(4,2)), FirstTurn),
+  day6_1_execute_instruction('turn on', FirstTurn, rect(pos(3, 2), pos(4,2)), NewLights),
+  day6_1_count_total_brightness(NewLights, 4).
+
+test('turn on initial 2x1 rect on day 6.2 and then turn one off') :-
+  day6_1_execute_instruction('turn on', [], rect(pos(3, 2), pos(4,2)), FirstTurn),
+  day6_1_execute_instruction('turn off', FirstTurn, rect(pos(3, 2), pos(3,2)), NewLights),
+  day6_1_count_total_brightness(NewLights, 1).
+
+test('toggle 0,0 through 2,2 has brightness 18') :-
+  day6_1_execute_instruction('toggle', [], rect(pos(0, 0), pos(2, 2)), NewLights),
+  day6_1_count_total_brightness(NewLights, 18).
 
 :- end_tests(adventofcode_tests).

@@ -129,44 +129,98 @@ day6_0_parse_instruction(Input, instruction(Comm, pos(BX, BY), pos(EX, EY))) :-
   number_codes(EX, SEX), 
   number_codes(EY, SEY).
 
+day6_get_rect_positions_sorted(Rect, Positions) :-
+  day6_get_rect_positions(Rect, PositionsList),
+  list_to_ord_set(PositionsList, Positions).
+
 day6_get_rect_positions(Rect, Positions) :-
   day6_rect_properties(Rect, Prop),
-  day6_get_rect_positions_util(Prop, 0, PositionsList),
-  list_to_ord_set(PositionsList, Positions).
+  day6_get_rect_positions_sorted_util(Prop, 0, Positions).
 
 day6_rect_properties(rect(pos(X, Y), pos(EX, EY)), prop(X, Y, W, Length)) :-
   W is EX - X + 1,
   H is EY - Y + 1,
   Length is H * W.
 
-day6_get_rect_positions_util(Prop, Length, []) :-
+day6_get_rect_positions_sorted_util(Prop, Length, []) :-
   prop(_, _, _, Length) = Prop, !.
 
-day6_get_rect_positions_util(Prop, Count, [Pos|T]) :-
+day6_get_rect_positions_sorted_util(Prop, Count, [Pos|T]) :-
   prop(BX, BY, W, _) = Prop, !,
   X is BX + (Count mod W),
   Y is BY + (Count div W),
   pos(X, Y) = Pos,
   NextCount is Count + 1,
-  day6_get_rect_positions_util(Prop, NextCount, T).
+  day6_get_rect_positions_sorted_util(Prop, NextCount, T).
 
-day6_turn_on_lights(CurrentLights, Rect, NewLights) :-
-  day6_get_rect_positions(Rect, LightsInTurn),
+day6_0_turn_on_lights(CurrentLights, Rect, NewLights) :-
+  day6_get_rect_positions_sorted(Rect, LightsInTurn),
   ord_union(CurrentLights, LightsInTurn, NewLights).
 
-day6_turn_off_lights(CurrentLights, Rect, NewLights) :-
-  day6_get_rect_positions(Rect, LightsOff),
+day6_0_turn_off_lights(CurrentLights, Rect, NewLights) :-
+  day6_get_rect_positions_sorted(Rect, LightsOff),
   ord_subtract(CurrentLights, LightsOff, NewLights).
 
-day6_toggle_lights(CurrentLights, Rect, NewLights) :-
-  day6_get_rect_positions(Rect, LightsToToggle),
+day6_0_toggle_lights(CurrentLights, Rect, NewLights) :-
+  day6_get_rect_positions_sorted(Rect, LightsToToggle),
   ord_symdiff(CurrentLights, LightsToToggle, NewLights).
 
 day6_0_execute_instruction('turn on', CurrentLights, Rect, NewLights) :-
-  day6_turn_on_lights(CurrentLights, Rect, NewLights).
+  day6_0_turn_on_lights(CurrentLights, Rect, NewLights).
   
 day6_0_execute_instruction('turn off', CurrentLights, Rect, NewLights) :-
-  day6_turn_off_lights(CurrentLights, Rect, NewLights).
+  day6_0_turn_off_lights(CurrentLights, Rect, NewLights).
 
 day6_0_execute_instruction('toggle', CurrentLights, Rect, NewLights) :-
-  day6_toggle_lights(CurrentLights, Rect, NewLights).
+  day6_0_toggle_lights(CurrentLights, Rect, NewLights).
+
+day6_1_inc_counter_by_1(Count, NextCount) :-
+  NextCount is Count + 1.
+
+day6_1_operate_on_brightness(_, CurrentLights, [], CurrentLights).
+
+day6_1_operate_on_brightness(CounterPred, CurrentLights, [H|T], NewLights) :-
+  pos(X, Y) = H,
+  day6_1_replace_or_add_position_applying_pred(CounterPred, CurrentLights, X, Y, CurrentReplaced),
+  day6_1_operate_on_brightness(CounterPred, CurrentReplaced, T, NewLights).
+
+day6_1_replace_or_add_position_applying_pred(CounterPred, CurrentLights, X, Y, WithoutLights) :-
+  select(pos(X, Y, Count), CurrentLights, pos(X, Y, NewCount), WithoutLights),
+  call(CounterPred, Count, NewCount).
+
+day6_1_replace_or_add_position_applying_pred(CounterPred, CurrentLights, X, Y, NewLights) :- 
+  call(CounterPred, 0, Count),
+  ord_add_element(CurrentLights, pos(X, Y, Count), NewLights).
+
+day6_1_execute_instruction('turn on', CurrentLights, Rect, NewLights) :-
+  day6_1_turn_on_lights(CurrentLights, Rect, NewLights).
+
+day6_1_execute_instruction('turn off', CurrentLights, Rect, NewLights) :-
+ day6_1_turn_off_lights(CurrentLights, Rect, NewLights).
+
+day6_1_execute_instruction('toggle', CurrentLights, Rect, NewLights) :-
+ day6_1_toggle_lights(CurrentLights, Rect, NewLights).
+
+day6_1_dec_counter_by_1(Count, NextCount) :-
+  NextCount is Count - 1.
+
+day6_1_turn_off_lights(CurrentLights, Rect, NewLights) :-
+  day6_get_rect_positions(Rect, LightsInTurn),
+  day6_1_operate_on_brightness(day6_1_dec_counter_by_1, CurrentLights, LightsInTurn, NewLights).
+
+day6_1_count_total_brightness(Lights, TotalBrightness) :-
+  reduce(Lights, day6_1_position_brightness, 0, TotalBrightness).
+
+day6_1_turn_on_lights(CurrentLights, Rect, NewLights) :-
+  day6_get_rect_positions(Rect, LightsInTurn),
+  day6_1_operate_on_brightness(day6_1_inc_counter_by_1, CurrentLights, LightsInTurn, NewLights).
+
+day6_1_toggle_lights(CurrentLights, Rect, NewLights) :-
+  day6_get_rect_positions(Rect, LightsInTurn),
+  day6_1_operate_on_brightness(day6_1_inc_counter_by_2, CurrentLights, LightsInTurn, NewLights).
+
+day6_1_inc_counter_by_2(Count, NextCount) :-
+  NextCount is Count + 2.
+
+day6_1_position_brightness(Acc, pos(_, _, Count), Total) :-
+  Total is Acc + Count.

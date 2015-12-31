@@ -179,18 +179,34 @@ day6_1_inc_counter_by_1(Count, NextCount) :-
 
 day6_1_operate_on_brightness(_, CurrentLights, [], CurrentLights).
 
-day6_1_operate_on_brightness(CounterPred, CurrentLights, [H|T], NewLights) :-
+day6_1_operate_on_brightness(CounterPred, CurrentLights, LightsToChange, NewLights) :-
+  day6_1_get_updated_lights_and_current(CounterPred, LightsToChange, CurrentLights, [], UpdatedLights, [],
+  LightsToExclude),
+  sort(UpdatedLights, SortedUpdatedLights),
+  sort(LightsToExclude, SortedLightsToExclude),
+  ord_subtract(CurrentLights, SortedLightsToExclude, CurrentLightsWithoutUpdated),
+  ord_union(SortedUpdatedLights, CurrentLightsWithoutUpdated, NewLights).
+
+day6_1_get_updated_lights_and_current(_, [], _, UpdatedLights, UpdatedLights, LightsToExclude, LightsToExclude).
+
+day6_1_get_updated_lights_and_current(CounterPred, [H|T], CurrentLights, Acc, UpdatedLights, AccExclude, LightsToExecute) :-
   pos(X, Y) = H,
-  day6_1_replace_or_add_position_applying_pred(CounterPred, CurrentLights, X, Y, CurrentReplaced),
-  day6_1_operate_on_brightness(CounterPred, CurrentReplaced, T, NewLights).
+  day6_1_replace_or_add_position_applying_pred(CounterPred, CurrentLights, X, Y, NewPos, OldPos),
+  day6_1_get_updated_lights_and_current(CounterPred, T, CurrentLights, [NewPos|Acc], UpdatedLights, [OldPos|AccExclude], LightsToExecute).
 
-day6_1_replace_or_add_position_applying_pred(CounterPred, CurrentLights, X, Y, WithoutLights) :-
-  select(pos(X, Y, Count), CurrentLights, pos(X, Y, NewCount), WithoutLights),
-  call(CounterPred, Count, NewCount).
+day6_1_replace_or_add_position_applying_pred(CounterPred, CurrentLights, X, Y, NewPos, OldPos) :-
+  OldPos = pos(X, Y, Count),
+  day6_1_search_position(OldPos, CurrentLights),
+  !, call(CounterPred, Count, NewCount),
+  NewPos = pos(X, Y, NewCount).
 
-day6_1_replace_or_add_position_applying_pred(CounterPred, CurrentLights, X, Y, NewLights) :- 
+day6_1_replace_or_add_position_applying_pred(CounterPred, _, X, Y, NewPos, pos(X, Y, 0)) :- 
   call(CounterPred, 0, Count),
-  ord_add_element(CurrentLights, pos(X, Y, Count), NewLights).
+  NewPos = pos(X, Y, Count).
+
+day6_1_search_position(Pos, CurrentLights) :- 
+  % FIXME: implement a binary search here!!!!
+  memberchk(Pos, CurrentLights).
 
 day6_1_execute_instruction('turn on', CurrentLights, Rect, NewLights) :-
   day6_1_turn_on_lights(CurrentLights, Rect, NewLights).

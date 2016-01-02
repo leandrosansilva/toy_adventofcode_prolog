@@ -130,4 +130,45 @@ test('toggle 0,0 through 2,2 has brightness 18') :-
   day6_1_execute_instruction('toggle', [], rect(pos(0, 0), pos(2, 2)), NewLights),
   day6_1_count_total_brightness(NewLights, 18).
 
+test('day 7 parse input') :-
+  day7_0_parse("123 -> x", input('x', 123)),
+  day7_0_parse("x AND y -> z", and('z', ['x', 'y'])),
+  day7_0_parse("p LSHIFT 2 -> q", lshift('q', 'p', 2)),
+  day7_0_parse("y RSHIFT 3 -> g", rshift('g', 'y', 3)),
+  day7_0_parse("NOT e -> f", not('f', 'e')),
+  day7_0_parse("x OR y -> d", or('d', ['x', 'y'])),
+  day7_0_parse("1 AND 123 -> z", and(z, [1, 123])).
+
+test('day 7.1 example circuit') :-
+  Input = [
+    input('x', '123'), 
+    input('y', '456'),
+    and('d', ['x', 'y']),
+    or('e', ['x', 'y']),
+    lshift('f', 'x', 2),
+    rshift('g', 'y', 2),
+    not('h', 'x'),
+    not('i', 'y')
+  ],
+  day7_0_instructions(Input, Instructions),
+  day7_0_compute_wire_value(Instructions, 'x', 123),
+  day7_0_compute_wire_value(Instructions, 'y', 456),
+  day7_0_compute_wire_value(Instructions, 'd', 72),
+  day7_0_compute_wire_value(Instructions, 'e', 507),
+  day7_0_compute_wire_value(Instructions, 'f', 492),
+  day7_0_compute_wire_value(Instructions, 'g', 114),
+  day7_0_compute_wire_value(Instructions, 'h', 65412),
+  day7_0_compute_wire_value(Instructions, 'i', 65079).
+
+test('day 7.1 circuit with other values') :-
+  Input = [
+    and('a', ['123', '456']),
+    or('b', ['123', '456']),
+    input('c', 'b')
+  ],
+  day7_0_instructions(Input, Instructions),
+  day7_0_compute_wire_value(Instructions, 'a', 72),
+  day7_0_compute_wire_value(Instructions, 'b', 507),
+  day7_0_compute_wire_value(Instructions, 'c', 507).
+
 :- end_tests(adventofcode_tests).

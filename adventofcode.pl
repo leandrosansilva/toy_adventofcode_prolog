@@ -240,3 +240,87 @@ day6_1_inc_counter_by_2(Count, NextCount) :-
 
 day6_1_position_brightness(Acc, pos(_, _, Count), Total) :-
   Total is Acc + Count.
+
+% TODO: refactor this parse to remove code repetition
+day7_0_parse(S, input(Wire, Value)) :-
+  regex('^(\\w+) -> (\\w+)$', [], S, [ValueCodes, WireCodes]),
+  atom_codes(Value, ValueCodes),
+  atom_codes(Wire, WireCodes).
+
+day7_0_parse(S, and(Output, [InputA, InputB])) :-
+  regex('^(\\w+) AND (\\w+) -> (\\w+)$', [], S, [ACodes, BCodes, OutCodes]),
+  atom_codes(Output, OutCodes),
+  atom_codes(InputA, ACodes),
+  atom_codes(InputB, BCodes).
+
+day7_0_parse(S, or(Output, [InputA, InputB])) :-
+  regex('^(\\w+) OR (\\w+) -> (\\w+)$', [], S, [ACodes, BCodes, OutCodes]),
+  atom_codes(Output, OutCodes),
+  atom_codes(InputA, ACodes),
+  atom_codes(InputB, BCodes).
+
+day7_0_parse(S, lshift(Output, Input, Shift)) :-
+  regex('^(\\w+) LSHIFT (\\d+) -> (\\w+)$', [], S, [InputCodes, ShiftCodes, OutCodes]),
+  atom_codes(Output, OutCodes),
+  atom_codes(Input, InputCodes),
+  number_codes(Shift, ShiftCodes).
+
+day7_0_parse(S, rshift(Output, Input, Shift)) :-
+  regex('^(\\w+) RSHIFT (\\d+) -> (\\w+)$', [], S, [InputCodes, ShiftCodes, OutCodes]),
+  atom_codes(Output, OutCodes),
+  atom_codes(Input, InputCodes),
+  number_codes(Shift, ShiftCodes).
+
+day7_0_parse(S, not(Output, Input)) :-
+  regex('^NOT (\\w+) -> (\\w+)$', [], S, [InputCodes, OutCodes]),
+  atom_codes(Output, OutCodes),
+  atom_codes(Input, InputCodes).
+
+day7_0_instructions(Instructions, Instructions).
+
+:- dynamic day7_0_compute_wire_value/3.
+
+day7_0_compute_wire_value(Instructions, Gate, Value) :-
+  day7_0_compute_wire_value_util(Instructions, Gate, Value),
+  asserta(day7_0_compute_wire_value(Instructions, Gate, Value)).
+
+% Raw numeric input
+day7_0_compute_wire_value_util(_, Gate, Value) :-
+  atom_number(Gate, Value).
+
+% input
+day7_0_compute_wire_value_util(Instructions, Gate, Value) :-
+  member(input(Gate, GateInput), Instructions), !,
+  day7_0_compute_wire_value(Instructions, GateInput, Value).
+
+% not
+day7_0_compute_wire_value_util(Instructions, Gate, Value) :-
+  member(not(Gate, NegGate), Instructions), !,
+  day7_0_compute_wire_value(Instructions, NegGate, NegValue),
+  Value is 65535 - NegValue.
+
+% and
+day7_0_compute_wire_value_util(Instructions, Gate, Value) :-
+  member(and(Gate, [Comp1, Comp2]), Instructions), !,
+  day7_0_compute_wire_value(Instructions, Comp1, Comp1Value),
+  day7_0_compute_wire_value(Instructions, Comp2, Comp2Value),
+  Value is Comp1Value /\ Comp2Value.
+
+% or
+day7_0_compute_wire_value_util(Instructions, Gate, Value) :-
+  member(or(Gate, [Comp1, Comp2]), Instructions), !,
+  day7_0_compute_wire_value(Instructions, Comp1, Comp1Value),
+  day7_0_compute_wire_value(Instructions, Comp2, Comp2Value),
+  Value is Comp1Value \/ Comp2Value.
+
+% lshift
+day7_0_compute_wire_value_util(Instructions, Gate, Value) :-
+  member(lshift(Gate, Input, Shift), Instructions), !,
+  day7_0_compute_wire_value(Instructions, Input, InputValue),
+  Value is InputValue << Shift.
+
+% rshift
+day7_0_compute_wire_value_util(Instructions, Gate, Value) :-
+  member(rshift(Gate, Input, Shift), Instructions), !,
+  day7_0_compute_wire_value(Instructions, Input, InputValue),
+  Value is InputValue >> Shift.

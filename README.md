@@ -2,6 +2,6 @@
 
 More information at: <a href="http://adventofcode.com">Advent of Code</a>.
 
-Currently at day 6.
+Currently at day 7.
 
 ***NOTE***: Requires `regex` package, not included by default in SWI-Prolog.

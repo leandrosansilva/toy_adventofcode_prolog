@@ -171,11 +171,17 @@ test('day 7.1 circuit with other values') :-
   day7_0_compute_wire_value(Instructions, 'b', 507),
   day7_0_compute_wire_value(Instructions, 'c', 507).
 
-test('day 8.1 data length') :-
+test('day 8.0 data length') :-
   day8_0_data_length("\"\"", 0),
   day8_0_data_length("\"\\\\\"", 1),
   day8_0_data_length("\"abc\"", 3),
   day8_0_data_length("\"aaa\\\"aaa\"", 7),
   day8_0_data_length("\"\\x27\"", 1).
+
+test('day 8.1 encoded string length') :-
+  day8_1_encoded_string_length("\"\"", 6),
+  day8_1_encoded_string_length("\"abc\"", 9),
+  day8_1_encoded_string_length("\"aaa\\\"aaa\"", 16),
+  day8_1_encoded_string_length("\"\\x27\"", 11).
 
 :- end_tests(adventofcode_tests).

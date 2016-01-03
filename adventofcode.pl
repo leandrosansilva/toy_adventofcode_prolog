@@ -326,9 +326,7 @@ day7_0_compute_wire_value_util(Instructions, Gate, Value) :-
   Value is InputValue >> Shift.
 
 day8_0_data_length(S, L) :-
-  string_length(S, SLength),
-  PayloadLength is SLength - 2,
-  sub_string(S, 1, PayloadLength, 1, Payload), 
+  sub_string(S, 1, _, 1, Payload), 
   string_codes(Payload, Codes),
   reduce(Codes, day8_0_data_length_pred, [0, normal], [L, normal]).
 
@@ -342,4 +340,18 @@ day8_0_data_length_pred([Length, hexa2], _, [NewLength, normal]) :-
   NewLength is Length + 1.
 
 day8_0_data_length_pred([Length, _], _, [NewLength, normal]) :-
+  NewLength is Length + 1.
+
+day8_1_encoded_string_length(Input, Length) :-
+  string_codes(Input, Codes),
+  reduce(Codes, day8_1_encode_pred, 0, PayloadLength),
+  Length is PayloadLength + 2.
+
+% 92 is ascii('\')
+% 34 is ascii('"')
+day8_1_encode_pred(Length, Char, NewLength) :-
+  member(Char, [92, 34]), !,
+  !, NewLength is Length + 2.
+
+day8_1_encode_pred(Length, _, NewLength) :-
   NewLength is Length + 1.

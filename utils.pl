@@ -30,15 +30,24 @@ reduce([InHead|InTail], Pred, Acc, OutValue) :-
 
 min(A, [], A).
 min([], B, B).
-  
 min(A, B, A) :-
-  A < B.
+  A < B, !.
+min(_, B, B).
 
-min(A, B, B) :-
-  A >= B.
+max(A, [], A).
+max([], B, B).
+max(A, B, A) :-
+  A > B, !.
+max(_, B, B).
 
 minlist([], Current, Current).
 
 minlist([H|T], Current, Result) :-
   min(H, Current, M),
   minlist(T, M, Result).
+
+maxlist([], Current, Current).
+
+maxlist([H|T], Current, Result) :-
+  max(H, Current, M),
+  maxlist(T, M, Result).

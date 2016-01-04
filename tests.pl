@@ -184,4 +184,29 @@ test('day 8.1 encoded string length') :-
   day8_1_encoded_string_length("\"aaa\\\"aaa\"", 16),
   day8_1_encoded_string_length("\"\\x27\"", 11).
 
+test('day 9 parse line') :-
+  day9_0_parse("London to Dublin = 464", distance('London', 'Dublin', 464)),
+  day9_0_parse("London to Belfast = 518", distance('London', 'Belfast', 518)).
+
+test('day 9.0 enumerate routes') :-
+  day9_0_get_possible_routes([distance('London', 'Dublin', 464)], Routes),
+  length(Routes, 2),
+  member(['London', 'Dublin'], Routes),
+  member(['Dublin', 'London'], Routes).
+
+test('day 9.0 path length simple path') :-
+  Distances = [distance('Dublin', 'London', 464)],
+  day9_0_path_length(Distances, ['London', 'Dublin'], 464).
+
+test('day 9.0 shortest path') :-
+  day9_0_shortest_and_longest_paths([distance('London', 'Dublin', 464)], 464, 464).
+
+test('day 9.0 shortest path example') :-
+  Distances = [
+    distance('London', 'Dublin', 464),
+    distance('London', 'Belfast', 518),
+    distance('Dublin', 'Belfast', 141)
+  ],
+  day9_0_shortest_and_longest_paths(Distances, 605, 982).
+
 :- end_tests(adventofcode_tests).

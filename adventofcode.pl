@@ -325,6 +325,7 @@ day7_0_compute_wire_value_util(Instructions, Gate, Value) :-
   day7_0_compute_wire_value(Instructions, Input, InputValue),
   Value is InputValue >> Shift.
 
+% day 8.0 implements a small state machine
 day8_0_data_length(S, L) :-
   sub_string(S, 1, _, 1, Payload), 
   string_codes(Payload, Codes),
@@ -350,8 +351,50 @@ day8_1_encoded_string_length(Input, Length) :-
 % 92 is ascii('\')
 % 34 is ascii('"')
 day8_1_encode_pred(Length, Char, NewLength) :-
-  member(Char, [92, 34]), !,
+  member(Char, [92, 34]),
   !, NewLength is Length + 2.
 
 day8_1_encode_pred(Length, _, NewLength) :-
   NewLength is Length + 1.
+
+day9_0_parse(S, distance(From, To, Distance)) :-
+  regex("^(\\w+) to (\\w+) = (\\d+)$", [], S, [FromCodes, ToCodes, DistanceCodes]),
+  atom_codes(From, FromCodes),
+  atom_codes(To, ToCodes),
+  number_codes(Distance, DistanceCodes).
+
+day9_0_get_possible_routes(Distances, Routes) :-
+  day9_0_cities(Distances, Cities),
+  findall(Perm, permutation(Cities, Perm), Routes).
+
+day9_0_cities(Distances, Cities) :-
+  day9_0_cities_util(Distances, [], L),
+  sort(L, Cities).
+
+day9_0_cities_util([], L, L).
+
+day9_0_cities_util([distance(From, To, _)|T], Acc, L) :-
+  day9_0_cities_util(T, [From, To|Acc], L).
+
+day9_0_path_length(Distances, Path, Length) :-
+  day9_0_path_length_util(Distances, Path, 0, Length).
+
+day9_0_path_length_util(_, [_], Length, Length).
+
+day9_0_path_length_util(Distances, [From,To|Tail], Acc, Length) :-
+  (
+    member(distance(From, To, Distance), Distances), !;
+    member(distance(To, From, Distance), Distances)
+  ),
+  NewAcc is Acc + Distance,
+  day9_0_path_length_util(Distances, [To|Tail], NewAcc, Length).
+
+day9_0_shortest_and_longest_paths(Distances, Shortest, Longest) :-
+  day9_0_get_possible_routes(Distances, Routes),
+  findall([Distances, Path], member(Path, Routes), PathPairLists),
+  map(PathPairLists, day9_0_get_length, Lengths),
+  minlist(Lengths, [], Shortest),
+  maxlist(Lengths, [], Longest).
+
+day9_0_get_length([Distances, Path], Length) :-
+  day9_0_path_length(Distances, Path, Length).
